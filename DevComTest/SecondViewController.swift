@@ -11,7 +11,7 @@ import UIKit
 class SecondViewController: UIViewController {
     
     var requestText: String = ""
-    var  md5: String = ""
+    var md5: String = ""
     
     @IBOutlet weak var requestTextLabel: UILabel!
     
@@ -19,7 +19,8 @@ class SecondViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       // md5Label.text = md5
+        requestTextLabel.text = "Request: " + requestText
+        md5Label.text = "MD5: " + md5
     }
     
     

@@ -28,15 +28,13 @@ class ViewController: UIViewController {
     }
 
     @IBAction func requestButton(sender: AnyObject) {
-            println("test")
         
         loadingIndicator.hidden = false
-        let view2 = self.storyboard?.instantiateViewControllerWithIdentifier("view2") as SecondViewController
-        
-        self.navigationController?.pushViewController(view2, animated: false)
+        loadingIndicator.startAnimating()
+
 
         var url : String = "http://md5.jsontest.com/?text=" + inputField.text
-        
+
         var request : NSMutableURLRequest = NSMutableURLRequest()
         request.URL = NSURL(string: url)
         request.HTTPMethod = "GET"
@@ -48,11 +46,43 @@ class ViewController: UIViewController {
             
             if (jsonResult != nil)
             {
-                println("test222")
-//                self.md5 = jsonResult.debugDescription
-               view2.md5Label.text = jsonResult.debugDescription
+                
+                if let errorMessage = jsonResult.valueForKey("error") as? String {
+                    dispatch_after(DISPATCH_TIME_NOW, dispatch_get_main_queue(),{ () -> () in
+                        
+                        self.loadingIndicator.stopAnimating()
+                        self.loadingIndicator.hidden = true
+                        
+                        let alert = UIAlertView()
+                        alert.title = "Error"
+                        alert.message = errorMessage
+                        alert.addButtonWithTitle("Ok")
+                        alert.show()
+                        
+                    })
+                    
+                    return
+                }
+                
+                dispatch_after(DISPATCH_TIME_NOW, dispatch_get_main_queue(),{ () -> () in
+                
+                    self.loadingIndicator.stopAnimating()
+                    self.loadingIndicator.hidden = true
+                    let view2 = self.storyboard?.instantiateViewControllerWithIdentifier("view2") as SecondViewController
+                    view2.md5 = jsonResult.valueForKey("md5") as String
+                    view2.requestText = jsonResult.valueForKey("original") as String
+                    self.navigationController?.pushViewController(view2, animated: false)
+                    
+                })
+                
             } else {
-            
+                dispatch_after(DISPATCH_TIME_NOW, dispatch_get_main_queue(),{ () -> () in
+                    
+                    self.loadingIndicator.stopAnimating()
+                    self.loadingIndicator.hidden = true
+                    
+                })
+
             }
         
         })
